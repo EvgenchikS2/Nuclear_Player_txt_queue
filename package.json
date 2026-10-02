@@ -1,0 +1,17 @@
+{
+  "name": "nuclear-txt-queue",
+  "version": "1.0.2",
+  "description": "Import a TXT song list into the Nuclear playback queue",
+  "author": "EvgenchikS",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.cjs"
+  },
+  "nuclear": {
+    "displayName": "TXT → Queue",
+    "categories": [
+      "other"
+    ]
+  }
+}
