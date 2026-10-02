@@ -1,30 +1,121 @@
 # TXT → Queue
 
-Автор: EvgenchikS. Версия: 1.0.2. Язык интерфейса зависит от языка Nuclear: русский для ru/ru_RU, английский для всех остальных. Переключение применяется автоматически в течение примерно 1,5 секунды.
+[English](#english) · [Русский](#русский)
 
-Плагин Nuclear для добавления песен из текстового файла в конец очереди.
-Готов к загрузке: сборка и установка npm-зависимостей не нужны.
+## English
 
-## Совместимость
+A Nuclear Player plugin that imports song names from a TXT file and appends selected matches to the playback queue.
 
-Написан по официальному API современной версии Nuclear на Tauri; исходники
-проверены на master с версией player 1.49.1 на 2 октября 2026 года.
-Требуются `Settings.registerWidget`, `Metadata.search` и `Queue.addToQueue`.
-Старые версии Nuclear на Electron этот плагин не поддерживают.
-Проверены автоматические тесты с имитацией API и загрузчика; запуск в настоящем
-Nuclear на компьютере пользователя пока не проверен.
+**Author:** EvgenchikS · **Version:** 1.0.2 · **License:** MIT
 
-## Установка
+The interface follows Nuclear's language setting: Russian for Russian locales and English for all other languages. Language changes are applied automatically within about 1.5 seconds. No build step or npm dependency installation is needed.
 
-1. Распакуй `nuclear-txt-queue.zip` в отдельную постоянную папку.
-2. Открой Nuclear → Preferences / Plugins (Настройки / Плагины).
-3. Нажми Add Plugin и выбери папку с `package.json` и `index.js`.
+### Compatibility
+
+Requires the modern Tauri version of Nuclear with `Settings.registerWidget`, `Metadata.search`, and `Queue.addToQueue`. Legacy Electron versions are not supported.
+
+The implementation was checked against Nuclear's `master` source, with player version 1.49.1, on October 2, 2026. All 12 automated tests pass using mocked APIs and a simulated plugin loader. Operation in the actual player has not yet been verified.
+
+### Installation
+
+1. Download the repository using **Code → Download ZIP**, then extract it, or clone the repository. Keep the plugin folder in a permanent location.
+2. Open Nuclear → **Preferences / Plugins**.
+3. Click **Add Plugin** and select the folder containing `package.json` and `index.js`.
+4. Enable **TXT → Queue**.
+5. Open settings and find **TXT → Queue → Import songs from TXT**.
+
+Menu names may vary depending on Nuclear's interface language.
+
+### TXT format
+
+Write one song per line:
+
+```text
+# One song per line
+Radiohead — No Surprises
+Daft Punk - Get Lucky
+Кино — Группа крови
+```
+
+- Separate the artist and title with a hyphen (`-`), en dash (`–`), or em dash (`—`), with spaces on both sides, or use a tab.
+- A title alone is accepted, but specifying the artist improves matching.
+- Numbering such as `1. ` or `1) ` is removed automatically.
+- Empty lines and lines beginning with `#` or `//` are ignored.
+- Repeated songs are preserved, as is their original order.
+
+See [example.txt](example.txt). This version imports **song names**, not YouTube/Spotify links, audio URLs, or local file paths. Limits: **2 MB** and **1000 songs** per import.
+
+### Usage
+
+1. In **Sources**, select a metadata provider that supports track search and enable a streaming provider. These providers are installed separately.
+2. Select the file encoding and click **Choose TXT file**, or paste the list into the text field. UTF-8 is the default; Windows-1251 and UTF-16 LE are also available. After changing the encoding, select the file again.
+3. Click **Find songs**. The plugin searches sequentially using Nuclear's active metadata provider.
+4. Review the results. Exact artist/title matches are selected automatically; approximate matches require a manual selection. Check for covers and different recordings with identical names.
+5. Click **Add to queue**. Selected tracks are appended in their original order. Existing queue items are preserved, and playback is not started automatically.
+
+Added rows disappear from the results to prevent a second click from adding them again. To import the same list again intentionally, click **Find songs** again. Unselected and unmatched rows remain visible.
+
+**Cancel search** stops the search without changing the queue. A provider's current network request may still finish, but its result will be ignored.
+
+If no matches are found, check the metadata provider and the song names. Adding a track does not guarantee that playable audio is available: Nuclear's streaming provider resolves the stream during playback.
+
+### Privacy
+
+TXT files are read locally. Song names are sent to the selected metadata provider through Nuclear for searching. The plugin does not persist the TXT contents in settings.
+
+### Source and tests
+
+- `index.js`: plugin implementation.
+- `package.json`: plugin manifest.
+- `test.cjs`: automated tests.
+
+With Node.js installed, run this from the plugin folder:
+
+```sh
+npm test
+```
+
+Tests cover TXT parsing, order and duplicates, match selection, errors and timeouts, cancellation, queue operations, widget registration, language switching, and dropdown colors.
+
+### API references
+
+- [Getting started with plugins](https://docs.nuclearplayer.com/nuclear/plugins/getting-started)
+- [Settings API](https://docs.nuclearplayer.com/nuclear/plugins/settings)
+- [Metadata API](https://docs.nuclearplayer.com/nuclear/plugins/metadata)
+- [Queue API](https://docs.nuclearplayer.com/nuclear/plugins/queue)
+- [Nuclear plugin loader](https://github.com/nukeop/nuclear/blob/master/packages/player/src/services/plugins/PluginLoader.ts)
+
+Released under the [MIT License](LICENSE).
+
+---
+
+## Русский
+
+Плагин Nuclear Player для поиска песен из TXT-файла и добавления выбранных совпадений в конец очереди воспроизведения.
+
+**Автор:** EvgenchikS · **Версия:** 1.0.2 · **Лицензия:** MIT
+
+Интерфейс следует настройке языка Nuclear: при русском языке плеера используется русский, при любом другом — английский. Смена языка применяется автоматически примерно за 1,5 секунды. Сборка и установка npm-зависимостей не нужны.
+
+### Совместимость
+
+Требуется современный Nuclear на Tauri с API `Settings.registerWidget`, `Metadata.search` и `Queue.addToQueue`. Старые версии на Electron не поддерживаются.
+
+Реализация проверена по исходникам Nuclear в ветке `master` с версией player 1.49.1 на 2 октября 2026 года. Все 12 автоматических тестов проходят с имитацией API и загрузчика плагинов. Работа в самом плеере пока не проверена.
+
+### Установка
+
+1. Скачай репозиторий через **Code → Download ZIP** и распакуй его или клонируй репозиторий. Сохрани папку плагина в постоянном месте.
+2. Открой Nuclear → **Preferences / Plugins** (Настройки / Плагины).
+3. Нажми **Add Plugin** и выбери папку с `package.json` и `index.js`.
 4. Включи **TXT → Queue**.
-5. В настройках найди раздел **TXT → Queue**, поле **Import songs from TXT**.
+5. В настройках найди **TXT → Очередь → Импорт музыки из TXT**. При английском языке это **TXT → Queue → Import songs from TXT**.
 
-Названия меню зависят от языка интерфейса Nuclear.
+Названия меню могут различаться в зависимости от языка интерфейса Nuclear.
 
-## Формат файла
+### Формат TXT
+
+Запиши по одной песне на строку:
 
 ```text
 # Одна песня на строку
@@ -33,53 +124,52 @@ Radiohead - No Surprises
 Daft Punk — Get Lucky
 ```
 
-Разделители: дефис, короткое или длинное тире с пробелами с обеих сторон,
-либо табуляция. Можно указать только название, но исполнитель улучшает точность.
-Нумерация вида `1. ` или `1) ` снимается автоматически. Пустые строки и строки
-с `#` или `//` в начале пропускаются. Повторные песни сохраняются.
-Пример: `example.txt`.
+- Разделяй исполнителя и название дефисом (`-`), коротким (`–`) или длинным (`—`) тире с пробелами с обеих сторон либо табуляцией.
+- Можно указать только название, но исполнитель повышает точность поиска.
+- Нумерация вида `1. ` или `1) ` снимается автоматически.
+- Пустые строки и строки, начинающиеся с `#` или `//`, пропускаются.
+- Повторные песни и исходный порядок сохраняются.
 
-Список должен содержать **названия песен**. Ссылки на YouTube/Spotify, ссылки
-на аудио и пути к локальным файлам в этой версии не импортируются.
-Лимиты: 2 МБ и 1000 песен за один импорт.
+Пример: [example.txt](example.txt). Эта версия импортирует **названия песен**, а не ссылки на YouTube/Spotify, ссылки на аудио или пути к локальным файлам. Лимиты: **2 МБ** и **1000 песен** за один импорт.
 
-## Использование
+### Использование
 
-1. В Sources / Источниках выбери провайдер метаданных с поиском треков и
-   включи провайдер потокового воспроизведения. Они устанавливаются отдельно.
-2. Выбери кодировку (по умолчанию UTF-8) и открой TXT. Для старых русских
-   файлов доступна Windows-1251; после смены кодировки выбери файл повторно.
-   Также можно вставить список в текстовое поле.
-3. Нажми **Find songs / Найти песни**. Плагин ищет по очереди через активный источник Nuclear.
-4. Проверь результаты. Точное совпадение названия и исполнителя выбирается
-   автоматически; остальные нужно выбрать из списка вручную. Возможны каверы
-   и разные записи с одинаковыми названиями — их следует проверить.
-5. Нажми **Add to queue / Добавить в очередь**. Выбранные песни добавятся в исходном порядке.
-   Текущая очередь сохраняется, воспроизведение автоматически не запускается.
+1. В **Sources / Источниках** выбери провайдер метаданных с поиском треков и включи провайдер потокового воспроизведения. Они устанавливаются отдельно.
+2. Выбери кодировку и нажми **Выбрать TXT-файл** или вставь список в текстовое поле. По умолчанию используется UTF-8; доступны Windows-1251 и UTF-16 LE. После смены кодировки выбери файл повторно.
+3. Нажми **Найти песни**. Плагин последовательно ищет песни через активный источник метаданных Nuclear.
+4. Проверь результаты. Точные совпадения исполнителя и названия выбираются автоматически, приблизительные нужно выбрать вручную. Обрати внимание на каверы и разные записи с одинаковыми названиями.
+5. Нажми **Добавить в очередь**. Выбранные песни добавятся в исходном порядке. Текущая очередь сохраняется, воспроизведение автоматически не запускается.
 
-Добавленные строки исчезают из результатов, поэтому второй клик не добавит
-их повторно. Для намеренного повторного импорта снова нажми «Find songs».
-Строки без результатов остаются видимыми. «Cancel search» прекращает импорт;
-текущий сетевой запрос провайдера может завершиться позже, его результат игнорируется.
+Добавленные строки исчезают из результатов, чтобы второй клик не добавил их повторно. Для намеренного повторного импорта снова нажми **Найти песни**. Невыбранные и ненайденные строки остаются видимыми.
 
-Если ничего не найдено, проверь провайдер метаданных и написание названий.
-Добавление в очередь не гарантирует доступность аудио: поиск потока выполняет
-выбранный провайдер Nuclear при воспроизведении.
-Чтение TXT выполняется локально. Для поиска названия отправляются выбранному
-провайдеру через Nuclear. Плагин не сохраняет содержимое TXT в настройки.
+**Отменить поиск** прекращает поиск без изменения очереди. Текущий сетевой запрос провайдера может завершиться позже, но его результат будет проигнорирован.
 
-## Проверка и исходники
+Если совпадений нет, проверь провайдер метаданных и написание названий. Добавление трека не гарантирует доступность аудио: провайдер Nuclear ищет поток при воспроизведении.
 
-`index.js` — весь код плагина, `package.json` — манифест.
-С установленным Node.js: `npm test` из папки плагина.
-Тесты проверяют разбор TXT, порядок, дубликаты, выбор совпадений,
-ошибки/таймауты, отмену, работу с очередью и регистрацию интерфейса.
+### Приватность
 
-Официальные источники API:
-- https://docs.nuclearplayer.com/nuclear/plugins/getting-started
-- https://docs.nuclearplayer.com/nuclear/plugins/settings
-- https://docs.nuclearplayer.com/nuclear/plugins/metadata
-- https://docs.nuclearplayer.com/nuclear/plugins/queue
-- https://github.com/nukeop/nuclear/blob/master/packages/player/src/services/plugins/PluginLoader.ts
+TXT читается локально. Для поиска названия песен передаются выбранному провайдеру метаданных через Nuclear. Плагин не сохраняет содержимое TXT в настройки.
 
-Лицензия MIT, см. LICENSE.
+### Исходники и тесты
+
+- `index.js` — реализация плагина.
+- `package.json` — манифест.
+- `test.cjs` — автоматические тесты.
+
+С установленным Node.js запусти из папки плагина:
+
+```sh
+npm test
+```
+
+Тесты проверяют разбор TXT, порядок и дубликаты, выбор совпадений, ошибки и таймауты, отмену поиска, операции с очередью, регистрацию интерфейса, переключение языка и цвета выпадающих списков.
+
+### Документация API
+
+- [Начало работы с плагинами](https://docs.nuclearplayer.com/nuclear/plugins/getting-started)
+- [API настроек](https://docs.nuclearplayer.com/nuclear/plugins/settings)
+- [API метаданных](https://docs.nuclearplayer.com/nuclear/plugins/metadata)
+- [API очереди](https://docs.nuclearplayer.com/nuclear/plugins/queue)
+- [Загрузчик плагинов Nuclear](https://github.com/nukeop/nuclear/blob/master/packages/player/src/services/plugins/PluginLoader.ts)
+
+Распространяется под [лицензией MIT](LICENSE).
