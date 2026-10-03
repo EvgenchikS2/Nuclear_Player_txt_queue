@@ -14,8 +14,7 @@ The interface follows Nuclear's language setting: Russian for Russian locales an
 
 Requires the modern Tauri version of Nuclear with `Settings.registerWidget`, `Metadata.search`, and `Queue.addToQueue`. Legacy Electron versions are not supported.
 
-The implementation was checked against Nuclear's `master` source, with player version 1.49.1, on October 2, 2026. All 12 automated tests pass using mocked APIs and a simulated plugin loader. I confirmed that the released plugin works in the actual Nuclear player on October 3, 2026. The subsequent change that removes language polling has automated test coverage and needs a new in-player check.
-
+The implementation was checked against Nuclear's `master` source, with player version 1.49.1, on October 2, 2026. All 12 automated tests pass using mocked APIs and a simulated plugin loader. I confirmed that the released plugin works in the actual Nuclear player on October 3, 2026. I also tested the updated plugin without language polling in Nuclear and confirmed that it works.
 The current SDK's `Settings.subscribe()` watches plugin-owned settings, not global settings such as `core.general.language`. To avoid periodic calls to `getGlobal()`, this plugin reads the language only on enable.
 
 ### Installation
@@ -103,7 +102,7 @@ Released under the [MIT License](LICENSE).
 
 Требуется современный Nuclear на Tauri с API `Settings.registerWidget`, `Metadata.search` и `Queue.addToQueue`. Старые версии на Electron не поддерживаются.
 
-Реализация проверена по исходникам Nuclear в ветке `master` с версией player 1.49.1 на 2 октября 2026 года. Все 12 автоматических тестов проходят с имитацией API и загрузчика плагинов. 3 октября 2026 года я подтвердил работу выпущенного плагина в самом Nuclear. Последующее исправление, убирающее опрос языка, покрыто автоматическими тестами и требует повторной проверки в плеере.
+Реализация проверена по исходникам Nuclear в ветке `master` с версией player 1.49.1 на 2 октября 2026 года. Все 12 автоматических тестов проходят с имитацией API и загрузчика плагинов. 3 октября 2026 года я подтвердил работу выпущенного плагина в самом Nuclear. Я также проверил обновлённый плагин без периодического опроса языка в Nuclear и подтвердил, что он работает.
 
 В текущем SDK метод `Settings.subscribe()` следит за настройками самого плагина, а не за глобальными настройками вроде `core.general.language`. Чтобы избежать периодических вызовов `getGlobal()`, плагин читает язык только при включении.
 
