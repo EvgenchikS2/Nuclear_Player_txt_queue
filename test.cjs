@@ -199,9 +199,8 @@ test('Russian for ru locales; English for all others; dynamic messages and liter
   assert.equal(translate('Match for Artist $& — Song (live)', 'ru'), 'Результат для Artist $& — Song (live)');
 });
 
-test('app language is read from Nuclear and changes update widget and setting titles', async () => {
-  let scheduled;
-  let cancelled = false;
+test('app language is read once per enable without polling and refreshed on re-enable', async () => {
+  let reads = 0;
   let appLanguage = 'ru_RU';
   let widget;
   const definitions = [];
@@ -215,11 +214,10 @@ test('app language is read from Nuclear and changes update widget and setting ti
     useEffect: effect => cleanup.push(effect())
   };
   const plugin = load(react, {
-    setTimeout: callback => { scheduled = callback; return 42; },
-    clearTimeout: id => { if (id === 42) cancelled = true; }
+    setTimeout: () => { throw new Error('Language must not be polled'); }
   });
   const api = { Metadata: {}, Queue: {}, Settings: {
-    getGlobal: async id => { assert.equal(id, 'core.general.language'); return appLanguage; },
+    getGlobal: async id => { reads++; assert.equal(id, 'core.general.language'); return appLanguage; },
     registerWidget: (_id, component) => { widget = component; },
     register: async defs => definitions.push(defs[0]), unregisterWidget() {}
   } };
@@ -227,14 +225,15 @@ test('app language is read from Nuclear and changes update widget and setting ti
   assert.equal(definitions[0].title, 'Импорт музыки из TXT');
   widget({ api });
   assert.ok(elements.some(el => el.type === 'button' && el.children[0] === 'Найти песни'));
+  assert.equal(reads, 1);
   appLanguage = 'de_DE';
-  await scheduled();
+  plugin.onDisable(api);
+  await plugin.onEnable(api);
+  assert.equal(reads, 2);
   assert.equal(definitions[1].title, 'Import songs from TXT');
   assert.ok(listeners.includes('en'));
   cleanup.forEach(fn => fn && fn());
   plugin.onDisable(api);
-  assert.equal(cancelled, true);
-  const previousCount = definitions.length;
-  await scheduled();
-  assert.equal(definitions.length, previousCount);
+  plugin.onUnload();
+  assert.equal(reads, 2);
 });

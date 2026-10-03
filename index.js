@@ -12,7 +12,7 @@ const activeJobs = new Set();
 let enabled = false;
 
 // Nuclear stores the application language in core.general.language.
-// The SDK has no global-setting subscription, so read it while the plugin is enabled.
+// Read once on enable: Settings.subscribe only watches plugin-owned settings.
 const LANGUAGE_SETTING = 'core.general.language';
 const RUSSIAN = {
   "The list is too large (maximum 2 MB).": "Список слишком большой (максимум 2 МБ).",
@@ -48,8 +48,6 @@ const RUSSIAN = {
   "Choose TXT file": "Выбрать TXT-файл"
 };
 let language = 'en';
-let languageTimer;
-let languageGeneration = 0;
 const languageListeners = new Set();
 
 function resolveLanguage(value) {
@@ -84,24 +82,6 @@ function importDefinition() {
   return { id: 'import', title: translate('Import songs from TXT'),
     description: translate('Find songs and append selected matches to the queue.'),
     category: translate('TXT → Queue'), kind: 'custom', widgetId: 'txt-import' };
-}
-
-function watchLanguage(api, generation) {
-  languageTimer = setTimeout(async () => {
-    const next = await readLanguage(api);
-    if (!enabled || generation !== languageGeneration) return;
-    if (next !== language) {
-      language = next;
-      languageListeners.forEach(listener => listener(next));
-      try { await api.Settings.register([importDefinition()]); } catch { /* Retry on next enable. */ }
-    }
-    if (enabled && generation === languageGeneration) watchLanguage(api, generation);
-  }, 1500);
-}
-
-function stopLanguageWatch() {
-  languageGeneration++;
-  clearTimeout(languageTimer);
 }
 
 
@@ -330,11 +310,10 @@ module.exports = {
     }
     api.Settings.registerWidget('txt-import', ImportWidget);
     try {
-      const generation = ++languageGeneration;
       language = await readLanguage(api);
+      languageListeners.forEach(listener => listener(language));
       await api.Settings.register([importDefinition()]);
       enabled = true;
-      watchLanguage(api, generation);
     } catch (error) {
       api.Settings.unregisterWidget('txt-import');
       throw error;
@@ -342,14 +321,12 @@ module.exports = {
   },
   onDisable(api) {
     enabled = false;
-    stopLanguageWatch();
     activeJobs.forEach(controller => controller.abort());
     activeJobs.clear();
     api.Settings.unregisterWidget('txt-import');
   },
   onUnload() {
     enabled = false;
-    stopLanguageWatch();
     activeJobs.forEach(controller => controller.abort());
     activeJobs.clear();
   }

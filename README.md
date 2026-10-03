@@ -8,13 +8,15 @@ A Nuclear Player plugin that imports song names from a TXT file and appends sele
 
 **Author:** EvgenchikS · **Version:** 1.0.2 · **License:** MIT
 
-The interface follows Nuclear's language setting: Russian for Russian locales and English for all other languages. Language changes are applied automatically within about 1.5 seconds. No build step or npm dependency installation is needed.
+The interface follows Nuclear's language setting: Russian for Russian locales and English for all other languages. The language is read once when the plugin is enabled. After changing Nuclear's language, disable and re-enable the plugin to update its interface. No build step or npm dependency installation is needed.
 
 ### Compatibility
 
 Requires the modern Tauri version of Nuclear with `Settings.registerWidget`, `Metadata.search`, and `Queue.addToQueue`. Legacy Electron versions are not supported.
 
-The implementation was checked against Nuclear's `master` source, with player version 1.49.1, on October 2, 2026. All 12 automated tests pass using mocked APIs and a simulated plugin loader. Operation in the actual player has not yet been verified.
+The implementation was checked against Nuclear's `master` source, with player version 1.49.1, on October 2, 2026. All 12 automated tests pass using mocked APIs and a simulated plugin loader. EvgenchikS confirmed that the released plugin works in the actual Nuclear player on October 3, 2026. The subsequent change that removes language polling has automated test coverage and needs a new in-player check.
+
+The current SDK's `Settings.subscribe()` watches plugin-owned settings, not global settings such as `core.general.language`. To avoid periodic calls to `getGlobal()`, this plugin reads the language only on enable.
 
 ### Installation
 
@@ -95,13 +97,15 @@ Released under the [MIT License](LICENSE).
 
 **Автор:** EvgenchikS · **Версия:** 1.0.2 · **Лицензия:** MIT
 
-Интерфейс следует настройке языка Nuclear: при русском языке плеера используется русский, при любом другом — английский. Смена языка применяется автоматически примерно за 1,5 секунды. Сборка и установка npm-зависимостей не нужны.
+Интерфейс следует настройке языка Nuclear: при русском языке плеера используется русский, при любом другом — английский. Язык читается один раз при включении плагина. После смены языка Nuclear выключи и снова включи плагин для обновления интерфейса. Сборка и установка npm-зависимостей не нужны.
 
 ### Совместимость
 
 Требуется современный Nuclear на Tauri с API `Settings.registerWidget`, `Metadata.search` и `Queue.addToQueue`. Старые версии на Electron не поддерживаются.
 
-Реализация проверена по исходникам Nuclear в ветке `master` с версией player 1.49.1 на 2 октября 2026 года. Все 12 автоматических тестов проходят с имитацией API и загрузчика плагинов. Работа в самом плеере пока не проверена.
+Реализация проверена по исходникам Nuclear в ветке `master` с версией player 1.49.1 на 2 октября 2026 года. Все 12 автоматических тестов проходят с имитацией API и загрузчика плагинов. 3 октября 2026 года EvgenchikS подтвердил работу выпущенного плагина в самом Nuclear. Последующее исправление, убирающее опрос языка, покрыто автоматическими тестами и требует повторной проверки в плеере.
+
+В текущем SDK метод `Settings.subscribe()` следит за настройками самого плагина, а не за глобальными настройками вроде `core.general.language`. Чтобы избежать периодических вызовов `getGlobal()`, плагин читает язык только при включении.
 
 ### Установка
 
